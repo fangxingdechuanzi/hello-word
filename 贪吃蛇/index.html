@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+<style type="text/css">
+
+
+/* html,body{
+width: 100%;
+height: 100%;
+background: url(img/1.jpg) no-repeat center center;
+background-size: 100% 103%;
+z-index: 999;
+} */
+*{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.box{
+	width: 500px;
+	height: 500px;
+	margin: 100px auto;
+	background:rgba(0,0,0,.2);
+	border-top: 1px solid black;
+	border-left:1px  solid black;
+}
+.rect{
+	width: 19px;
+	height: 19px;
+	background:rgba(0,0,0,.2);
+	margin-right: 1px;
+	margin-bottom: 1px;
+	float: left;
+}
+.grade{
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	top: 100px;
+	left: 150px;
+	line-height: 50px;
+	font-size: 25px;
+	text-align: center;
+	border:1px solid black;
+}
+html,body{
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+.mask{
+	width: 100%;
+	height: 100%;
+	opacity:1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2
+	/*background: url(img/2.jpg) no-repeat center center;
+	background-size: 100% 100%;*/
+
+}
+.mask li{
+	float:left;
+	width: 50%;
+	height: 100%;
+	/*background:rgba(255,255,255,.9);*/
+	line-height: 760px;
+	text-align:left;
+	font-size: 80px;
+	color: white;
+	background: black;
+	transition:all 2s;
+	/*position: */
+}
+
+
+
+.mask li:first-child{
+	text-align: right;
+	background: url(img/2.jpg) no-repeat left top;
+	background-size: 199% 100%;
+}
+.mask li:last-child{
+	text-align: left;
+	background: url(img/2.jpg) no-repeat right top;
+	background-size: 201% 100%;
+
+}
+.warning{
+	width: 300px;
+	height: 200px;
+	border:2px solid red;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	margin: auto;
+	line-height:150px;
+	text-align: center;
+	font-size: 30px;
+	color: gold;
+	border-radius: 10px;
+	transition:2s;
+	background: black;
+	transform:translate(0px,-1000px);
+	z-index: 99;
+
+}
+
+.warning button{
+	position: absolute;
+	bottom:20%;
+	left:100px;
+	width: 100px;
+	height:30px;
+	border-radius: 3px;
+	background: lime;
+	outline: none;
+	font-size: 20px;
+	border: none;
+	margin: auto;
+}
+</style>
+
+
+</head>
+<body>
+	<ul class="mask">
+		<li>开始</li>
+		<li>游戏</li>
+
+	</ul>
+	<ul class="box">
+	</ul>
+	<ul class="grade">
+		<li>分数：<span>0</span></li>
+		<li>等级：<span>1</span></li>
+	</ul>
+	<div class="warning">
+	<span>gameover!!!</span>
+	<button>重新开始</button>
+    </div>
+
+</body>
+	<script type="text/javascript">
+	var n=0
+	var a=1
+	var box=document.querySelector('.box')
+	var mask=document.querySelector('.mask')
+	var lis1=document.querySelector('.mask li:first-child')
+	var lis2=document.querySelector('.mask li:last-child')
+	var war=document.querySelector('.warning')
+	var spans=document.querySelector('.warning span')
+	var but1=document.querySelector('.warning button')
+	var but2=document.querySelectorAll('.warning button')[1]
+	var num=0 //分数
+	var lev=1//等级
+	var time=500//初始时间
+	var flage=true
+	var b=2
+	var t;
+
+
+	for(i=0;i<25;i++){
+		for(j=0;j<25;j++){
+			var li=document.createElement('li')
+			box.appendChild(li)
+			li.className='rect'//给它给类名
+			li.id='a'+i+"_"+j  //给它一个id属性
+		}
+	}
+	mask.onclick=function(){
+		// console.log(lis1=document.querySelector('.mask li:first-child'))
+		lis1.style.transform='translate(0px,-1000px)'
+		lis2.style.transform='translate(0px,1000px)'
+		this.opacity=0
+		 t=setInterval(function(){
+			change()
+			console.log(1)
+		},time)
+
+	}
+
+	but1.onclick=function er(){
+		location.reload();  //加载重新开始
+	}
+
+	var snake=[{x:12,y:13},{x:13,y:13},{x:14,y:13}]	//设置蛇的初始位置
+	function createsnake(snake){   //将蛇进行绘制
+		snake.forEach(function(val,index){
+			var id="#a"+val.y+"_"+val.x
+			document.querySelector(id).style.background='lime'
+			document.querySelector(id).style.borderRadius=0
+
+		})
+
+		var last='#a'+snake[snake.length-1].y+'_'+snake[snake.length-1].x
+		document.querySelector(last).style.backgroundColor='red'
+		document.querySelector(last).style.borderRadius='50%'
+		flage=true
+	}
+	createsnake(snake)
+
+
+
+
+
+	function createfood(snake){		//绘制食物
+		var x=Math.floor(Math.random()*25) //向下取整
+		var y=Math.floor(Math.random()*25)
+
+		while(check(x,y,snake)){ //
+			var x=Math.floor(Math.random()*25)
+			var y=Math.floor(Math.random()*25)
+		}
+		var idname="#a"+y+"_"+x
+		document.querySelector(idname).style.background='red'
+		return{x,y}
+	}
+
+	function check(x,y,snake){		//判断食物位置和蛇是否重合
+			for(var i in snake){
+				if(snake[i].x==x && snake[i].y==y) {
+				return true
+			}
+		}
+			return false
+	}
+var food=createfood(snake)
+
+
+
+
+	var type="right"
+	function change(){		//判断他的走向
+		if(type=='right'){
+			var newx=snake[snake.length-1].x+1
+			var newy=snake[snake.length-1].y
+		}else if(type=='top'){
+			var newx=snake[snake.length-1].x
+			var newy=snake[snake.length-1].y-1
+		}else if(type=='left'){
+			var newx=snake[snake.length-1].x-1
+			var newy=snake[snake.length-1].y
+		}else if(type=='bottom'){
+			var newx=snake[snake.length-1].x
+			var newy=snake[snake.length-1].y+1
+		}
+
+		if(newx==25 || newx==-1 || newy==25|| newy==-1 || check(newx,newy,snake)){
+			clearInterval(t)
+			war.style.transform='translate(0px,0px)'
+			return
+		}
+		snake.push({x:newx,y:newy})		//给后面追加一个
+		if(newx==food.x&&newy==food.y){
+			num++
+			document.querySelector('.grade>li').innerHTML=`分数:<span>${num}</span>`
+			if(num%3==0){
+				lev++
+				console.log(lev)
+				document.querySelector('.grade li:last-child').innerHTML=`等级:<span>${lev}</span>`
+
+				clearInterval(t)
+				time=time-time/b
+				b++
+				console.log(time)
+				t=setInterval(function(){
+					change()
+				},time)
+			}
+		food=createfood(snake)
+
+
+
+
+	}else{
+		var first=snake.shift()			//再把前面删除一个 并变白
+		// console.log(document.querySelector("#a"+first.y+first.x))
+		document.querySelector("#a"+first.y+"_"+first.x).style.background='rgba(0,0,0,.2)'
+	}
+	createsnake(snake);
+}
+
+
+
+
+document.onkeydown=function(e){
+	if(!flage){
+		return
+	}
+	flage=false
+	switch(e.keyCode){
+		case 37:if(type!='right'){
+			type='left'
+		}
+		break;
+
+		case 38:if(type!='bottom'){
+			type='top'
+		}
+
+		break;
+		case 39:if(type!='left'){
+					type='right'
+				}
+				break;
+		case 40:if(type!='top'){
+			type='bottom'
+		}
+		break;
+
+		case 32:clearInterval(t)
+		war.style.transform='translate(0px,0px)'
+		spans.innerText='continue'
+		but1.innerText='继续游戏'
+
+	}
+}
+
+var flage=true
+	but1.onclick=function(){
+		if(flage){
+			war.style.transform='translate(0px,-1000px)'
+			spans.innerText='gameover'
+			but1.innerText='重新开始'
+			location.reload();
+		}else{
+			t=setInterval(function(){
+				change()
+			},time)
+			war.style.transform='translate(0px,-1000px)'
+			spans.innerText='continue'
+			but1.innerText='继续游戏'
+
+
+		}
+		flage=!flage
+
+	}
+	</script>
+</html>
